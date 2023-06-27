@@ -10,7 +10,7 @@ namespace API.Controllers;
 [Route("api/bookings")]
 public class BookingController : ControllerBase
 {
-        private readonly BookingService _service;
+    private readonly BookingService _service;
 
     public BookingController(BookingService service)
     {
@@ -85,14 +85,14 @@ public class BookingController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (update is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<BookingDto> {
                 Code = StatusCodes.Status500InternalServerError,
                 Status = HttpStatusCode.InternalServerError.ToString(),
                 Message = "Error retrieving data from the database"
             });
-        
+
         return Ok(new ResponseHandler<BookingDto> {
             Code = StatusCodes.Status200OK,
             Status = HttpStatusCode.OK.ToString(),
@@ -111,7 +111,7 @@ public class BookingController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (delete is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<BookingDto> {
                 Code = StatusCodes.Status500InternalServerError,

@@ -10,7 +10,7 @@ namespace API.Controllers;
 [Route("api/roles")]
 public class RoleController : ControllerBase
 {
-        private readonly RoleService _service;
+    private readonly RoleService _service;
 
     public RoleController(RoleService service)
     {
@@ -85,14 +85,14 @@ public class RoleController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (update is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<RoleDto> {
                 Code = StatusCodes.Status500InternalServerError,
                 Status = HttpStatusCode.InternalServerError.ToString(),
                 Message = "Error retrieving data from the database"
             });
-        
+
         return Ok(new ResponseHandler<RoleDto> {
             Code = StatusCodes.Status200OK,
             Status = HttpStatusCode.OK.ToString(),
@@ -111,7 +111,7 @@ public class RoleController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (delete is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<RoleDto> {
                 Code = StatusCodes.Status500InternalServerError,

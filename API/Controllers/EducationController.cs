@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[ApiController]
+[Route("api/educations")]
 public class EducationController : ControllerBase
 {
-        private readonly EducationService _service;
+    private readonly EducationService _service;
 
     public EducationController(EducationService service)
     {
@@ -83,14 +85,14 @@ public class EducationController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (update is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<EducationDto> {
                 Code = StatusCodes.Status500InternalServerError,
                 Status = HttpStatusCode.InternalServerError.ToString(),
                 Message = "Error retrieving data from the database"
             });
-        
+
         return Ok(new ResponseHandler<EducationDto> {
             Code = StatusCodes.Status200OK,
             Status = HttpStatusCode.OK.ToString(),
@@ -109,7 +111,7 @@ public class EducationController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (delete is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<EducationDto> {
                 Code = StatusCodes.Status500InternalServerError,

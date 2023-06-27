@@ -10,7 +10,7 @@ namespace API.Controllers;
 [Route("api/rooms")]
 public class RoomController : ControllerBase
 {
-        private readonly RoomService _service;
+    private readonly RoomService _service;
 
     public RoomController(RoomService service)
     {
@@ -85,14 +85,14 @@ public class RoomController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (update is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<RoomDto> {
                 Code = StatusCodes.Status500InternalServerError,
                 Status = HttpStatusCode.InternalServerError.ToString(),
                 Message = "Error retrieving data from the database"
             });
-        
+
         return Ok(new ResponseHandler<RoomDto> {
             Code = StatusCodes.Status200OK,
             Status = HttpStatusCode.OK.ToString(),
@@ -111,7 +111,7 @@ public class RoomController : ControllerBase
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Id not found"
             });
-        
+
         if (delete is 0)
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<RoomDto> {
                 Code = StatusCodes.Status500InternalServerError,

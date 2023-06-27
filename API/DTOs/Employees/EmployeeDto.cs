@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using API.Utilities;
+using API.Utilities.Enums;
 
 namespace API.DTOs.Employees;
 

@@ -1,6 +1,6 @@
 ﻿using API.Contracts;
 
-namespace API.Utilities;
+namespace API.Utilities.Handlers;
 
 public class GenerateHandler
 {

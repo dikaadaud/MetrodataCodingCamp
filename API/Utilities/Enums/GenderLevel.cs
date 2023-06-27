@@ -1,4 +1,4 @@
-﻿namespace API.Utilities
+﻿namespace API.Utilities.Enums
 {
     public enum GenderLevel
     {

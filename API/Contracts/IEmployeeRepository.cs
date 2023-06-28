@@ -2,4 +2,7 @@
 
 namespace API.Contracts;
 
-public interface IEmployeeRepository : IGeneralRepository<Employee> { }
+public interface IEmployeeRepository : IGeneralRepository<Employee>
+{
+    bool IsDuplicateValue(string value);
+}

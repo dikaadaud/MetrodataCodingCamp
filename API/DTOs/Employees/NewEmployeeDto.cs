@@ -19,7 +19,6 @@ public class NewEmployeeDto
     {
         return new() {
             Guid = new Guid(),
-            Nik = GenerateHandler.Nik(),
             FirstName = newEmployeeDto.FirstName,
             LastName = newEmployeeDto.LastName,
             BirthDate = newEmployeeDto.BirthDate,

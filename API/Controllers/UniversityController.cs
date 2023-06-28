@@ -2,6 +2,7 @@
 using API.DTOs.Universities;
 using API.Services;
 using API.Utilities.Handlers;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;

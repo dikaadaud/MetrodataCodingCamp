@@ -1,5 +1,7 @@
 ﻿using API.Contracts;
 using API.DTOs.Employees;
+using API.Models;
+using API.Utilities.Handlers;
 
 namespace API.Services;
 
@@ -36,7 +38,12 @@ public class EmployeeService
 
     public EmployeeDto? CreateEmployee(NewEmployeeDto newEmployeeDto)
     {
-        var createdEmployee = _employeeRepository.Create(newEmployeeDto);
+        var getLastEmployeeNik = _employeeRepository.GetAll().Select(e => e.Nik).LastOrDefault();
+        
+        Employee employee = newEmployeeDto;
+        employee.Nik = GenerateHandler.Nik(getLastEmployeeNik);
+        
+        var createdEmployee = _employeeRepository.Create(employee);
         if (createdEmployee is null) return null; // Employee failed to create
 
         return (EmployeeDto) createdEmployee; // Employee created

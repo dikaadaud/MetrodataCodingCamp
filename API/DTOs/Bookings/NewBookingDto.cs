@@ -8,7 +8,6 @@ public class NewBookingDto
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public StatusLevel Status { get; set; }
     public string Remarks { get; set; }
     public Guid RoomGuid { get; set; }
     public Guid EmployeeGuid { get; set; }
@@ -19,7 +18,7 @@ public class NewBookingDto
             Guid = new Guid(),
             StartDate = newBookingDto.StartDate,
             EndDate = newBookingDto.EndDate,
-            Status = newBookingDto.Status,
+            Status = StatusLevel.Requested,
             Remarks = newBookingDto.Remarks,
             RoomGuid = newBookingDto.RoomGuid,
             EmployeeGuid = newBookingDto.EmployeeGuid
@@ -31,7 +30,6 @@ public class NewBookingDto
         return new() {
             StartDate = booking.StartDate,
             EndDate = booking.EndDate,
-            Status = booking.Status,
             Remarks = booking.Remarks,
             RoomGuid = booking.RoomGuid,
             EmployeeGuid = booking.EmployeeGuid

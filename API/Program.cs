@@ -1,14 +1,39 @@
+using System.Net;
+using System.Reflection;
 using API.Contracts;
 using API.Data;
 using API.Repositories;
 using API.Services;
+using API.Utilities.Enums;
+using API.Utilities.Handlers;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddDbContext<BookingManagementDbContext>(option => 
+builder.Services.AddControllers()
+       .ConfigureApiBehaviorOptions(options =>
+        {
+            // Custom validation response
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var errors = context.ModelState.Values
+                                    .SelectMany(v => v.Errors)
+                                    .Select(v => v.ErrorMessage);
+
+                return new BadRequestObjectResult(new ResponseValidationHandler {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Validation error",
+                    Errors = errors.ToArray()
+                });
+            };
+        });
+
+builder.Services.AddDbContext<BookingManagementDbContext>(option =>
                                                               option.UseSqlServer(builder.Configuration
                                                                  .GetConnectionString("DefaultConnection")));
 
@@ -31,6 +56,13 @@ builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<UniversityService>();
+
+// Register Fluent validation
+builder.Services.AddFluentValidationAutoValidation()
+       .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+// Register Handler
+builder.Services.AddScoped<GenerateHandler>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

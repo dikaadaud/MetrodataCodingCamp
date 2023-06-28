@@ -1,25 +1,19 @@
 ﻿using API.Contracts;
+using API.Data;
 
 namespace API.Utilities.Handlers;
 
 public class GenerateHandler
 {
-    private static IEmployeeRepository _employeeRepository;
-
-    public GenerateHandler(IEmployeeRepository employeeRepository)
+    public static string Nik(string? lastNik = null)
     {
-        _employeeRepository = employeeRepository;
-    }
+        if (lastNik is null)
+        {
+            return "111111"; // First employee
+        }
 
-    public static string Nik()
-    {
-        var getLastNik = _employeeRepository.GetAll()
-                                            .Select(employee => employee.Nik)
-                                            .LastOrDefault();
-        
-        if (getLastNik is null) return "111111"; // First employee
+        var generateNik = Convert.ToInt32(lastNik) + 1;
 
-        var lastNik = Convert.ToInt32(getLastNik) + 1;
-        return lastNik.ToString();
+        return generateNik.ToString();
     }
 }

@@ -38,10 +38,8 @@ public class EmployeeService
 
     public EmployeeDto? CreateEmployee(NewEmployeeDto newEmployeeDto)
     {
-        var getLastEmployeeNik = _employeeRepository.GetAll().Select(e => e.Nik).LastOrDefault();
-        
         Employee employee = newEmployeeDto;
-        employee.Nik = GenerateHandler.Nik(getLastEmployeeNik);
+        employee.Nik = GenerateHandler.Nik(_employeeRepository.GetLastEmpoyeeNik());
         
         var createdEmployee = _employeeRepository.Create(employee);
         if (createdEmployee is null) return null; // Employee failed to create

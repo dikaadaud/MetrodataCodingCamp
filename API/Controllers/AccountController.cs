@@ -17,6 +17,24 @@ public class AccountController : ControllerBase
         _service = service;
     }
 
+    [HttpPost("Register")]
+    public IActionResult Register(RegisterDto register)
+    {
+        var isCreated = _service.RegisterAccount(register);
+        if (!isCreated)
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Error retrieving data from the database"
+            });
+
+        return Ok(new ResponseHandler<AccountDto> {
+            Code = StatusCodes.Status200OK,
+            Status = HttpStatusCode.OK.ToString(),
+            Message = "Register Success"
+        });
+    }
+    
     [HttpGet]
     public IActionResult GetAll()
     {

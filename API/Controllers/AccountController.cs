@@ -98,24 +98,34 @@ public class AccountController : ControllerBase
     public IActionResult Login(LoginDto login)
     {
         var loginResult = _service.LoginAccount(login);
-        if (loginResult == 0)
+        if (loginResult == "0")
             return NotFound(new ResponseHandler<AccountDto> {
                 Code = StatusCodes.Status404NotFound,
                 Status = HttpStatusCode.NotFound.ToString(),
                 Message = "Account not found"
             });
 
-        if (loginResult == -1)
+        if (loginResult == "-1")
             return BadRequest(new ResponseHandler<AccountDto> {
                 Code = StatusCodes.Status400BadRequest,
                 Status = HttpStatusCode.BadRequest.ToString(),
                 Message = "Password is incorrect"
             });
 
-        return Ok(new ResponseHandler<AccountDto> {
+        if (loginResult == "-2")
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Error retrieving when creating token"
+            });
+        }
+
+        return Ok(new ResponseHandler<string> {
             Code = StatusCodes.Status200OK,
             Status = HttpStatusCode.OK.ToString(),
-            Message = "Login Success"
+            Message = "Login Success",
+            Data = loginResult
         });
     }
 

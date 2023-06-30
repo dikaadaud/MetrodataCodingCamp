@@ -1,4 +1,5 @@
-﻿using API.Contracts;
+﻿using System.Security.Claims;
+using API.Contracts;
 using API.Data;
 using API.DTOs.AccountRoles;
 using API.DTOs.Accounts;
@@ -18,6 +19,7 @@ public class AccountService
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IEducationRepository _educationRepository;
     private readonly IAccountRoleRepository _accountRoleRepository;
+    private readonly ITokenHandler _tokenHandler;
     private readonly IEmailHandler _emailHandler;
 
     public AccountService(IAccountRepository accountRepository,
@@ -26,7 +28,8 @@ public class AccountService
                           IEducationRepository educationRepository,
                           IAccountRoleRepository accountRoleRepository,
                           IEmailHandler emailHandler,
-                          BookingManagementDbContext context)
+                          BookingManagementDbContext context, 
+                          ITokenHandler tokenHandler)
     {
         _accountRepository = accountRepository;
         _universityRepository = universityRepository;
@@ -35,6 +38,7 @@ public class AccountService
         _accountRoleRepository = accountRoleRepository;
         _emailHandler = emailHandler;
         _context = context;
+        _tokenHandler = tokenHandler;
     }
 
     public int ChangePassword(ChangePasswordDto changePasswordDto)
@@ -103,20 +107,34 @@ public class AccountService
         return 1;
     }
 
-    public int LoginAccount(LoginDto login)
+    public string LoginAccount(LoginDto login)
     {
         var employee = _employeeRepository.GetEmployeeByEmail(login.Email);
         if (employee is null)
-            return 0;
+            return "0";
 
         var account = _accountRepository.GetByGuid(employee.Guid);
         if (account is null)
-            return 0;
+            return "0";
 
         if (!HashingHandler.Validate(login.Password, account!.Password))
-            return -1;
+            return "-1";
 
-        return 1;
+        var claims = new List<Claim>() {
+            new Claim("NIK", employee.Nik),
+            new Claim("FullName", $"{employee.FirstName} {employee.LastName}"),
+            new Claim("Email", login.Email)
+        };
+
+        try
+        {
+            var getToken = _tokenHandler.GenerateToken(claims);
+            return getToken;
+        }
+        catch
+        {
+            return "-2";
+        }
     }
 
     public bool RegisterAccount(RegisterDto registerVM)

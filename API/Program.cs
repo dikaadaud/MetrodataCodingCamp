@@ -65,6 +65,7 @@ builder.Services.AddFluentValidationAutoValidation()
 
 // Register Handler
 builder.Services.AddScoped<GenerateHandler>();
+builder.Services.AddScoped<ITokenHandler, TokenHandler>();
 
 // Add SmtpClient
 builder.Services.AddTransient<IEmailHandler, EmailHandler>(_ => new EmailHandler(

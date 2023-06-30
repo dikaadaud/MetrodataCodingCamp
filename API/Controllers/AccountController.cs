@@ -17,6 +17,108 @@ public class AccountController : ControllerBase
         _service = service;
     }
 
+    [HttpPost("ChangePassword")]
+    public IActionResult ChangePassword(ChangePasswordDto changePasswordDto)
+    {
+        var isUpdated = _service.ChangePassword(changePasswordDto);
+        if (isUpdated == 0)
+            return NotFound(new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Email not found"
+            });
+
+        if (isUpdated == -1)
+        {
+            return BadRequest(new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "Otp is already used"
+            });
+        }
+        
+        if (isUpdated == -2)
+        {
+            return BadRequest(new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "Otp is incorrect"
+            });
+        }
+        
+        if (isUpdated == -3)
+        {
+            return BadRequest(new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "Otp is expired"
+            });
+        }
+        
+        if (isUpdated is -4)
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Error retrieving data from the database"
+            });
+        
+        return Ok(new ResponseHandler<AccountDto> {
+            Code = StatusCodes.Status200OK,
+            Status = HttpStatusCode.OK.ToString(),
+            Message = "Password has been changed successfully"
+        });
+    }
+
+    [HttpPost("ForgotPassword")]
+    public IActionResult ForgotPassword(ForgotPasswordDto forgotPassword)
+    {
+        var isUpdated = _service.ForgotPassword(forgotPassword);
+        if (isUpdated == 0)
+            return NotFound(new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Email not found"
+            });
+        
+        if (isUpdated is -1)
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Error retrieving data from the database"
+            });
+
+        return Ok(new ResponseHandler<AccountDto> {
+            Code = StatusCodes.Status200OK,
+            Status = HttpStatusCode.OK.ToString(),
+            Message = "Otp has been sent to your email"
+        });
+    }
+    
+    [HttpPost("Login")]
+    public IActionResult Login(LoginDto login)
+    {
+        var loginResult = _service.LoginAccount(login);
+        if (loginResult == 0)
+            return NotFound(new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Account not found"
+            });
+
+        if (loginResult == -1)
+            return BadRequest(new ResponseHandler<AccountDto> {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "Password is incorrect"
+            });
+
+        return Ok(new ResponseHandler<AccountDto> {
+            Code = StatusCodes.Status200OK,
+            Status = HttpStatusCode.OK.ToString(),
+            Message = "Login Success"
+        });
+    }
+
     [HttpPost("Register")]
     public IActionResult Register(RegisterDto register)
     {

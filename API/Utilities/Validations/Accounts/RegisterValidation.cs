@@ -75,7 +75,7 @@ public class RegisterValidation : AbstractValidator<RegisterDto>
 
     private bool BeValidDegreeLevel(string degreeLevel)
     {
-        var validValues = new[] { "Diploma", "Bachelor", "Master", "Magister" };
+        var validValues = new[] { "Diploma", "Bachelor", "Master" };
         return validValues.Contains(degreeLevel);
     }
 }

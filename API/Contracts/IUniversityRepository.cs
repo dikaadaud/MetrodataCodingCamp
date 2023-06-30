@@ -2,4 +2,7 @@
 
 namespace API.Contracts;
 
-public interface IUniversityRepository : IGeneralRepository<University> { }
+public interface IUniversityRepository : IGeneralRepository<University>
+{
+    University? CreateWithDuplicateCheck(University university);
+}

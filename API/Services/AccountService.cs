@@ -18,12 +18,14 @@ public class AccountService
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IEducationRepository _educationRepository;
     private readonly IAccountRoleRepository _accountRoleRepository;
+    private readonly IEmailHandler _emailHandler;
 
     public AccountService(IAccountRepository accountRepository,
                           IUniversityRepository universityRepository,
                           IEmployeeRepository employeeRepository,
                           IEducationRepository educationRepository,
                           IAccountRoleRepository accountRoleRepository,
+                          IEmailHandler emailHandler,
                           BookingManagementDbContext context)
     {
         _accountRepository = accountRepository;
@@ -31,7 +33,90 @@ public class AccountService
         _employeeRepository = employeeRepository;
         _educationRepository = educationRepository;
         _accountRoleRepository = accountRoleRepository;
+        _emailHandler = emailHandler;
         _context = context;
+    }
+
+    public int ChangePassword(ChangePasswordDto changePasswordDto)
+    {
+        var employee = _employeeRepository.GetEmployeeByEmail(changePasswordDto.Email);
+        if (employee is null)
+            return 0; // Email not found
+        
+        var account = _accountRepository.GetByGuid(employee.Guid);
+        if (account is null)
+            return 0; // Email not found
+
+        if (account.IsUsed)
+            return -1; // OTP is used
+        
+        if (account.OTP != changePasswordDto.Otp)
+            return -2; // OTP is incorrect
+        
+        if (account.ExpiredTime < DateTime.Now)
+            return -3; // OTP is expired
+
+        var isUpdated = _accountRepository.Update(new Account {
+            Guid = account.Guid,
+            Password = HashingHandler.Hash(changePasswordDto.NewPassword),
+            IsDeleted = account.IsDeleted,
+            OTP = account.OTP,
+            ExpiredTime = account.ExpiredTime,
+            IsUsed = true,
+            CreatedDate = account.CreatedDate,
+            ModifiedDate = DateTime.Now
+        });
+        
+        return isUpdated ? 1    // Success
+                         : -4;  // Database Error
+    }
+
+    public int ForgotPassword(ForgotPasswordDto forgotPassword)
+    {
+        var employee = _employeeRepository.GetEmployeeByEmail(forgotPassword.Email);
+        if (employee is null)
+            return 0; // Email not found
+
+        var account = _accountRepository.GetByGuid(employee.Guid);
+        if (account is null)
+            return -1;
+
+        var otp = new Random().Next(111111, 999999);
+        var isUpdated = _accountRepository.Update(new Account {
+            Guid = account.Guid,
+            Password = account.Password,
+            IsDeleted = account.IsDeleted,
+            OTP = otp,
+            ExpiredTime = DateTime.Now.AddMinutes(5),
+            IsUsed = false,
+            CreatedDate = account.CreatedDate,
+            ModifiedDate = DateTime.Now
+        });
+
+        if (!isUpdated)
+            return -1;
+        
+        _emailHandler.SendEmail(forgotPassword.Email, 
+                                "Forgot Password", 
+                                $"Your OTP is {otp}");
+
+        return 1;
+    }
+
+    public int LoginAccount(LoginDto login)
+    {
+        var employee = _employeeRepository.GetEmployeeByEmail(login.Email);
+        if (employee is null)
+            return 0;
+
+        var account = _accountRepository.GetByGuid(employee.Guid);
+        if (account is null)
+            return 0;
+
+        if (!HashingHandler.Validate(login.Password, account!.Password))
+            return -1;
+
+        return 1;
     }
 
     public bool RegisterAccount(RegisterDto registerVM)
@@ -39,7 +124,7 @@ public class AccountService
         using var transaction = _context.Database.BeginTransaction();
         try
         {
-            var university = _universityRepository.Create(new NewUniversityDto {
+            var university = _universityRepository.CreateWithDuplicateCheck(new NewUniversityDto {
                 Code = registerVM.UniversityCode,
                 Name = registerVM.UniversityName
             });
@@ -54,7 +139,7 @@ public class AccountService
                 PhoneNumber = registerVM.PhoneNumber
             };
             employeeData.Nik = GenerateHandler.Nik(_employeeRepository.GetLastEmpoyeeNik());
-            
+
             var employee = _employeeRepository.Create(employeeData);
 
             var education = _educationRepository.Create(new EducationDto {

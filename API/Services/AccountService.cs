@@ -122,15 +122,22 @@ public class AccountService
 
         if (!HashingHandler.Validate(login.Password, account!.Password))
             return "-1";
-
-        var claims = new List<Claim>() {
-            new Claim("NIK", employee.Nik),
-            new Claim("FullName", $"{employee.FirstName} {employee.LastName}"),
-            new Claim("Email", login.Email)
-        };
-
+        
         try
         {
+            var claims = new List<Claim>() {
+                new Claim("NIK", employee.Nik),
+                new Claim("FullName", $"{employee.FirstName} {employee.LastName}"),
+                new Claim("EmailAddress", login.Email)
+            };
+
+            var getAccountRole = _accountRoleRepository.GetAccountRolesByAccountGuid(employee.Guid);
+            var getRoleNameByAccountRole = from ar in getAccountRole
+                                           join r in _roleRepository.GetAll() on ar.RoleGuid equals r.Guid
+                                           select r.Name;
+
+            claims.AddRange(getRoleNameByAccountRole.Select(role => new Claim(ClaimTypes.Role, role)));
+            
             var getToken = _tokenHandler.GenerateToken(claims);
             return getToken;
         }

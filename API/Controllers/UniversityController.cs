@@ -1,14 +1,16 @@
 ﻿using System.Net;
 using API.DTOs.Universities;
 using API.Services;
+using API.Utilities.Enums;
 using API.Utilities.Handlers;
-using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/universities")]
+[Authorize(Roles = $"{nameof(RoleLevel.Manager)}")]
 public class UniversityController : ControllerBase
 {
     private readonly UniversityService _service;
@@ -19,6 +21,7 @@ public class UniversityController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult GetAll()
     {
         var entities = _service.GetUniversity();

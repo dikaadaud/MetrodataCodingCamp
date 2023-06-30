@@ -19,6 +19,7 @@ public class AccountService
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IEducationRepository _educationRepository;
     private readonly IAccountRoleRepository _accountRoleRepository;
+    private readonly IRoleRepository _roleRepository;
     private readonly ITokenHandler _tokenHandler;
     private readonly IEmailHandler _emailHandler;
 
@@ -27,6 +28,7 @@ public class AccountService
                           IEmployeeRepository employeeRepository,
                           IEducationRepository educationRepository,
                           IAccountRoleRepository accountRoleRepository,
+                          IRoleRepository roleRepository,
                           IEmailHandler emailHandler,
                           BookingManagementDbContext context, 
                           ITokenHandler tokenHandler)
@@ -36,6 +38,7 @@ public class AccountService
         _employeeRepository = employeeRepository;
         _educationRepository = educationRepository;
         _accountRoleRepository = accountRoleRepository;
+        _roleRepository = roleRepository;
         _emailHandler = emailHandler;
         _context = context;
         _tokenHandler = tokenHandler;
@@ -171,6 +174,12 @@ public class AccountService
             var account = _accountRepository.Create(new AccountDto {
                 Guid = employee.Guid,
                 Password = HashingHandler.Hash(registerVM.Password)
+            });
+
+            var getRoleUser = _roleRepository.GetByName("User");
+            _accountRoleRepository.Create(new AccountRoleDto {
+                AccountGuid = account.Guid,
+                RoleGuid = getRoleUser.Guid
             });
 
             transaction.Commit();
